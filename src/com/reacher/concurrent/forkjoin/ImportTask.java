@@ -1,4 +1,4 @@
-package com.reacher.concurrent;
+package com.reacher.concurrent.forkjoin;
 
 import java.util.HashMap;
 import java.util.List;
