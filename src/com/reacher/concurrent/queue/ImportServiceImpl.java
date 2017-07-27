@@ -6,10 +6,7 @@ import com.reacher.concurrent.TimeUtils;
 import com.reacher.concurrent.forkjoin.ImportTask;
 
 import java.util.*;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * 类说明
@@ -19,7 +16,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class ImportServiceImpl {
 
-    private static final String NAME = "/home/reacher/Desktop/csv-test.csv";
+    private static final String NAME = "D:\\csv-test.csv";
 
     private static final String CODE = "GB18030";
 
@@ -27,16 +24,19 @@ public class ImportServiceImpl {
 
         long start = System.currentTimeMillis();
 
+        ExecutorService executorService = Executors.newCachedThreadPool();
+
         List<Thread> consumers = new ArrayList<>();
 
         CSVReader reader = CSVHelper.read(name, code);
 
         BlockingQueue<String[]> queue = new LinkedBlockingDeque<>(50);
-        ProducerThread producerThread = new ProducerThread(queue, reader);
-        producerThread.start();
+
+        executorService.execute(new ProducerThread(queue, reader));
+
         for (int i = 0; i < 4; ++i) {
             ConsumerThread consumerThread = new ConsumerThread("Thread" + (i + 1), queue);
-            consumerThread.start();
+            executorService.execute(consumerThread);
             consumers.add(consumerThread);
         }
 

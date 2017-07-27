@@ -18,8 +18,8 @@ public class ConsumerThread extends Thread{
     @Override
     public void run() {
         try {
-            while (!this.queue.isEmpty()) {
-                System.out.println(test(this.queue.take()));
+            while (true) {
+                System.out.println(Thread.currentThread().getName() + " : " + test(this.queue.take()));
                 TimeUnit.SECONDS.sleep(1);
             }
         } catch (Exception e) {
