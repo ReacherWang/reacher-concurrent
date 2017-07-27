@@ -1,6 +1,7 @@
 package com.reacher.concurrent.queue;
 
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -8,20 +9,28 @@ import java.util.concurrent.TimeUnit;
  */
 public class ConsumerThread extends Thread{
 
-    private BlockingQueue<String[]> queue;
+    private static final String DONE = "IMPORT-DONE";
 
-    public ConsumerThread(String name, BlockingQueue<String[]> queue) {
+    private BlockingQueue<String[]> queue;
+    private CountDownLatch latch;
+
+    public ConsumerThread(String name, BlockingQueue<String[]> queue, CountDownLatch latch) {
         super(name);
         this.queue = queue;
+        this.latch = latch;
     }
 
     @Override
     public void run() {
         try {
             while (true) {
+                if(null != this.queue.peek() && this.queue.peek()[0].equals(DONE)) {
+                    break;
+                }
                 System.out.println(Thread.currentThread().getName() + " : " + test(this.queue.take()));
                 TimeUnit.SECONDS.sleep(1);
             }
+            this.latch.countDown();
         } catch (Exception e) {
             e.printStackTrace();
         }

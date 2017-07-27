@@ -16,6 +16,8 @@ import java.util.concurrent.*;
  */
 public class ImportServiceImpl {
 
+    private static final int CONSUMER_NUMBER = 2;
+
     private static final String NAME = "D:\\csv-test.csv";
 
     private static final String CODE = "GB18030";
@@ -26,43 +28,23 @@ public class ImportServiceImpl {
 
         ExecutorService executorService = Executors.newCachedThreadPool();
 
-        List<Thread> consumers = new ArrayList<>();
-
         CSVReader reader = CSVHelper.read(name, code);
 
         BlockingQueue<String[]> queue = new LinkedBlockingDeque<>(50);
 
         executorService.execute(new ProducerThread(queue, reader));
 
-        for (int i = 0; i < 4; ++i) {
-            ConsumerThread consumerThread = new ConsumerThread("Thread" + (i + 1), queue);
+        CountDownLatch latch = new CountDownLatch(CONSUMER_NUMBER);
+        for (int i = 0; i < CONSUMER_NUMBER; ++i) {
+            ConsumerThread consumerThread = new ConsumerThread("Thread" + i, queue, latch);
             executorService.execute(consumerThread);
-            consumers.add(consumerThread);
         }
+
+        latch.await();
 
         long end = System.currentTimeMillis();
 
         System.out.println("Used time: " + TimeUtils.print(end - start));
-    }
-
-    public void test(String name, String code) throws Exception {
-        long start = System.currentTimeMillis();
-
-        CSVReader reader = CSVHelper.read(name, code);
-
-        List<String[]> rows = reader.readAll();
-
-        for (int i = 0; i < rows.size(); ++i) {
-            try {
-                TimeUnit.SECONDS.sleep(1);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-
-        long end = System.currentTimeMillis();
-
-        System.out.println("Test Used time: " + TimeUtils.print(end - start));
     }
 
     public static void main(String[] args) throws Exception {
@@ -70,7 +52,7 @@ public class ImportServiceImpl {
 
         importService.imports(NAME, CODE);
 
-        importService.test(NAME, CODE);
+        //importService.test(NAME, CODE);
 
     }
 

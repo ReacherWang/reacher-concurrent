@@ -9,6 +9,8 @@ import java.util.concurrent.BlockingQueue;
  */
 public class ProducerThread extends Thread {
 
+    private static final String DONE = "IMPORT-DONE";
+
     private BlockingQueue<String[]> queue;
     private CSVReader reader;
 
@@ -24,6 +26,7 @@ public class ProducerThread extends Thread {
             while ((datas = reader.readNext()) != null) {
                 this.queue.put(datas);
             }
+            this.queue.put(new String[] {DONE});
         } catch (Exception e) {
             e.printStackTrace();
         }
