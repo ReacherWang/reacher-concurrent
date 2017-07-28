@@ -1,21 +1,18 @@
-package com.reacher.concurrent.queue;
+package com.reacher.concurrent.thread;
 
 import au.com.bytecode.opencsv.CSVReader;
 
-import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.BlockingDeque;
 
 /**
  * Created by reacher on 17-7-26.
  */
-public class ProducerThread extends Thread {
+public class ProducerThread extends ImportThread {
 
-    private static final String DONE = "IMPORT-DONE";
-
-    private BlockingQueue<String[]> queue;
     private CSVReader reader;
 
-    public ProducerThread(BlockingQueue<String[]> queue, CSVReader reader) {
-        this.queue = queue;
+    public ProducerThread(BlockingDeque<String[]> queue, CSVReader reader) {
+        super(queue);
         this.reader = reader;
     }
 

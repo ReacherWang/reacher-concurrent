@@ -1,11 +1,9 @@
-package com.reacher.concurrent.queue;
+package com.reacher.concurrent.thread;
 
 import au.com.bytecode.opencsv.CSVReader;
 import com.reacher.concurrent.CSVHelper;
 import com.reacher.concurrent.TimeUtils;
-import com.reacher.concurrent.forkjoin.ImportTask;
 
-import java.util.*;
 import java.util.concurrent.*;
 
 /**
@@ -16,7 +14,7 @@ import java.util.concurrent.*;
  */
 public class ImportServiceImpl {
 
-    private static final int CONSUMER_NUMBER = 2;
+    private static final int CONSUMER_NUMBER = 8;
 
     private static final String NAME = "D:\\csv-test.csv";
 
@@ -30,13 +28,13 @@ public class ImportServiceImpl {
 
         CSVReader reader = CSVHelper.read(name, code);
 
-        BlockingQueue<String[]> queue = new LinkedBlockingDeque<>(50);
+        BlockingDeque<String[]> queue = new LinkedBlockingDeque<>(50);
 
         executorService.execute(new ProducerThread(queue, reader));
 
         CountDownLatch latch = new CountDownLatch(CONSUMER_NUMBER);
         for (int i = 0; i < CONSUMER_NUMBER; ++i) {
-            ConsumerThread consumerThread = new ConsumerThread("Thread" + i, queue, latch);
+            ConsumerThread consumerThread = new ConsumerThread(queue, latch);
             executorService.execute(consumerThread);
         }
 

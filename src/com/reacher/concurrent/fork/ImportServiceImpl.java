@@ -1,4 +1,4 @@
-package com.reacher.concurrent.forkjoin;
+package com.reacher.concurrent.fork;
 
 import au.com.bytecode.opencsv.CSVReader;
 import com.reacher.concurrent.CSVHelper;
